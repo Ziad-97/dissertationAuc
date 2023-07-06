@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.dissertationauc.dissertationauc.Auction.utils.ObjectDataMapper.bidderDataMapper;
+
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService{
@@ -95,22 +97,7 @@ public class UserServiceImpl implements UserService{
     }
 
 
-    private BidderResponse bidderDataMapper(Bidder user) {
 
-
-        BidderResponse data = new BidderResponse();
-        data.setUserName(user.getUserName());
-        data.setEmail(user.getEmail());
-        data.setFunds(user.getFunds());
-        data.setId(user.getId());
-
-
-
-
-
-        return data;
-
-    }
 
 
 

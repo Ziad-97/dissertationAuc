@@ -99,7 +99,7 @@ public class UserController {
     @PostMapping("/sellitem")
     public ResponseEntity sellItemController(@RequestBody ItemData data) {
 
-        ResponseEntity sellingItemResponse = itemService.sellItems(data.getPrice());
+        ResponseEntity sellingItemResponse = itemService.sellItems(data);
 
 
         return sellingItemResponse;

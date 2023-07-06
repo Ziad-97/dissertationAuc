@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ItemRepo extends JpaRepository<Item, Long> {
 
-   Item findByItem(Double name);
+   Item findByName(String name);
 
 
 

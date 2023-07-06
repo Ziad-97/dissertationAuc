@@ -22,6 +22,7 @@ public class Auction {
     private Double bidPrice;
     private String bidderName;
 
+
     private LocalDateTime openingTime;
     private LocalDateTime closingTime;
 

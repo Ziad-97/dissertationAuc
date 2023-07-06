@@ -28,9 +28,8 @@ public class Bidder {
 
     private String code;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Item> items;
-
 
 
     private boolean verify;

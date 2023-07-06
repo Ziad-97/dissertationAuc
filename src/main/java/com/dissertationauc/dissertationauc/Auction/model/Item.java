@@ -8,6 +8,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
+@Table(name = "item")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,6 +17,13 @@ public class Item {
     private String name;
 
     private Double price;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private Bidder user;
+
+
+
 
 
 

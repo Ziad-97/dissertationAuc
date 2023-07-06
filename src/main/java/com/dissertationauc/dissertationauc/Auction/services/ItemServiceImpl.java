@@ -8,8 +8,10 @@ import com.dissertationauc.dissertationauc.Auction.exception.InvalidEmailExcepti
 import com.dissertationauc.dissertationauc.Auction.exception.InvalidUserNameException;
 import com.dissertationauc.dissertationauc.Auction.exception.UserAlreadyExistsException;
 import com.dissertationauc.dissertationauc.Auction.exception.UserNotFoundException;
+import com.dissertationauc.dissertationauc.Auction.model.Auction;
 import com.dissertationauc.dissertationauc.Auction.model.Bidder;
 import com.dissertationauc.dissertationauc.Auction.model.Item;
+import com.dissertationauc.dissertationauc.Auction.repositories.AuctionRepo;
 import com.dissertationauc.dissertationauc.Auction.repositories.ItemRepo;
 import com.dissertationauc.dissertationauc.Auction.repositories.BidderRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.dissertationauc.dissertationauc.Auction.utils.ObjectDataMapper.*;
 
 @Service
 @Slf4j
@@ -26,40 +31,40 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     ItemRepo itemRepo;
+
+    @Autowired
+    AuctionRepo auctionRepo;
     @Override
-    public ResponseEntity sellItems(Double price) {
-        Item item = itemRepo.findByItem(price);
+    public ResponseEntity sellItems(ItemData data) {
+        Item item = itemRepo.findByName(data.getName());
 
         if(item!= null) {
-            return ResponseEntity.ok().body(itemDataMapper(item));
+
+            Auction auction = new Auction();
+            auction.setAuctionItem(item);
+            auction.setAuctionName(item.getName());
+            auction.setOpeningTime(LocalDateTime.now());
+            auction= auctionRepo.save(auction);
+
+            return ResponseEntity.ok().body(auctionDataMapper(auction));
         }
         else {
             return ResponseEntity.notFound().build();
         }
     }
 
-    private ItemResponse itemDataMapper(Item item){
-        ItemResponse itemData = new ItemResponse();
-
-        itemData.setId(item.getId());
-        itemData.setPrice(item.getPrice());
-        itemData.setName(item.getName());
 
 
-        return itemData;
-    }
     @Override
     public ResponseEntity addItems(ItemData data) {
         Item item = new Item();
 
         item.setPrice(data.getPrice());
         item.setName(data.getName());
-        itemRepo.save(item);
 
-        return ResponseEntity.ok().body(itemDataMapper(item));
+        item =itemRepo.save(item);
 
-
-
+        return ResponseEntity.ok().body(itemResponseDataMapper(item));
 
     }
 

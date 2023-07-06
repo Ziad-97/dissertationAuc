@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface ItemService {
 
-    ResponseEntity sellItems(Double name);
+    ResponseEntity sellItems(ItemData name);
 
 
     ResponseEntity addItems(ItemData name);

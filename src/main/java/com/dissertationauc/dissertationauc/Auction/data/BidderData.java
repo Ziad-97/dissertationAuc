@@ -22,8 +22,9 @@ public class BidderData {
 
     private int funds;
 
-    @OneToMany
-    private List<Item> items;
+
+    private List<ItemData> items;
+
 
 
 
