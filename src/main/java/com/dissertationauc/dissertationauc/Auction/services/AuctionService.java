@@ -1,4 +1,5 @@
 package com.dissertationauc.dissertationauc.Auction.services;
+import com.dissertationauc.dissertationauc.Auction.model.Bidder;
 import org.springframework.http.ResponseEntity;
 
 public interface AuctionService {
@@ -11,6 +12,10 @@ public interface AuctionService {
      ResponseEntity getAuction(Long id);
 
      ResponseEntity getAuctions();
+
+
+
+
 
 
 

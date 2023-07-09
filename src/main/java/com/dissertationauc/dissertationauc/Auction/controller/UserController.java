@@ -1,6 +1,7 @@
 package com.dissertationauc.dissertationauc.Auction.controller;
 
 
+import com.dissertationauc.dissertationauc.Auction.data.AddFundsData;
 import com.dissertationauc.dissertationauc.Auction.data.BidderData;
 import com.dissertationauc.dissertationauc.Auction.data.ItemData;
 import com.dissertationauc.dissertationauc.Auction.model.Bidder;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,21 +87,20 @@ public class UserController {
                 return registerResponse;
             }
 
-    @PostMapping("/additem")
-    public ResponseEntity addItemController(@RequestBody ItemData data) {
+    @PostMapping("/{userId}/addItem")
+    public ResponseEntity addItemController(@RequestBody ItemData data, @PathVariable Long userId) {
 
-        ResponseEntity addingItemResponse = itemService.addItems(data);
-
+        ResponseEntity addingItemResponse = itemService.addItems(data,userId);
 
         return addingItemResponse;
 
     }
 
 
-    @PostMapping("/sellitem")
-    public ResponseEntity sellItemController(@RequestBody ItemData data) {
+    @PostMapping("/{userId}/sellItem")
+    public ResponseEntity sellItemController(@RequestBody ItemData data,  @PathVariable Long userId) {
 
-        ResponseEntity sellingItemResponse = itemService.sellItems(data);
+        ResponseEntity sellingItemResponse = itemService.sellItems(data, userId);
 
 
         return sellingItemResponse;
@@ -122,6 +123,14 @@ public class UserController {
     public ResponseEntity getUserByEmail(@RequestParam String email) {
 
         ResponseEntity response = userService.getUserByEmail(email);  //Not sure if this is correct because email service interface was not used.
+        return response;
+    }
+
+    @PostMapping("/add-funds")
+    public ResponseEntity addMoney(@RequestBody AddFundsData data) {
+
+        ResponseEntity response = userService.addFunds(data);
+
         return response;
     }
 }

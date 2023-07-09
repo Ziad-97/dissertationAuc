@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.dissertationauc.dissertationauc.Auction.utils.ObjectDataMapper.*;
 
@@ -34,17 +35,25 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     AuctionRepo auctionRepo;
+
+    @Autowired
+    BidderRepo bidderRepo;
+
     @Override
-    public ResponseEntity sellItems(ItemData data) {
+    public ResponseEntity sellItems(ItemData data, Long userId) {
         Item item = itemRepo.findByName(data.getName());
+
 
         if(item!= null) {
 
             Auction auction = new Auction();
             auction.setAuctionItem(item);
             auction.setAuctionName(item.getName());
+            auction.setOpen(true);
             auction.setOpeningTime(LocalDateTime.now());
+
             auction= auctionRepo.save(auction);
+
 
             return ResponseEntity.ok().body(auctionDataMapper(auction));
         }
@@ -56,16 +65,27 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public ResponseEntity addItems(ItemData data) {
+    public ResponseEntity addItems(ItemData data, Long userId) {
         Item item = new Item();
+        Optional<Bidder> bidder = bidderRepo.findById(userId);
 
-        item.setPrice(data.getPrice());
-        item.setName(data.getName());
+        if(bidder.isPresent()) {
 
-        item =itemRepo.save(item);
+
+            item.setPrice(data.getPrice());
+            item.setName(data.getName());
+
+            item.setUser(bidder.get());
+            item = itemRepo.save(item);
+
+        }
 
         return ResponseEntity.ok().body(itemResponseDataMapper(item));
 
     }
+
+
+
+
 
 }

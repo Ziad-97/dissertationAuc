@@ -35,13 +35,14 @@ public class AuctionController {
     }
 
     @PostMapping("setbid/{id}")
-    public ResponseEntity<?> setBid(@PathVariable Long id, @RequestParam Double amount, @RequestHeader("Authorization") String token) {
+    public ResponseEntity setBid(@PathVariable Long id, @RequestParam Double amount, @RequestHeader("Authorization") String token) {
         String username = extractUsernameFromToken(token);
 
         if (username != null) {
 
-            return auctionService.setBid(id, username, amount);
+             ResponseEntity response = auctionService.setBid(id, username, amount);
 
+             return response;
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized to set bid");
         }

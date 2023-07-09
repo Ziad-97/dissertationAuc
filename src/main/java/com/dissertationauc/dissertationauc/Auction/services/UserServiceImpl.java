@@ -1,9 +1,6 @@
 package com.dissertationauc.dissertationauc.Auction.services;
 
-import com.dissertationauc.dissertationauc.Auction.data.BidderData;
-import com.dissertationauc.dissertationauc.Auction.data.BidderResponse;
-import com.dissertationauc.dissertationauc.Auction.data.ItemData;
-import com.dissertationauc.dissertationauc.Auction.data.ItemResponse;
+import com.dissertationauc.dissertationauc.Auction.data.*;
 import com.dissertationauc.dissertationauc.Auction.exception.InvalidEmailException;
 import com.dissertationauc.dissertationauc.Auction.exception.InvalidUserNameException;
 import com.dissertationauc.dissertationauc.Auction.exception.UserAlreadyExistsException;
@@ -47,6 +44,8 @@ public class UserServiceImpl implements UserService{
             return ResponseEntity.notFound().build();
         }
     }
+
+
 
     @Override
     public ResponseEntity logoutService(String userName){
@@ -96,6 +95,18 @@ public class UserServiceImpl implements UserService{
 
     }
 
+    @Override
+    public ResponseEntity addFunds(AddFundsData data) {
+
+        Bidder bidder =bidderRepo.findByUserName(data.getUserName());
+
+        bidder.setFunds(data.getFunds()+data.getFunds());
+
+        bidderRepo.save(bidder);
+
+        return ResponseEntity.ok().body(bidderDataMapper(bidder));
+
+    }
 
 
 
