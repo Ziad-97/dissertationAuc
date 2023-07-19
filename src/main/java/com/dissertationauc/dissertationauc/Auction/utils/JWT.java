@@ -1,6 +1,7 @@
 package com.dissertationauc.dissertationauc.Auction.utils;
+import com.dissertationauc.dissertationauc.Auction.model.Bidder;
+import com.dissertationauc.dissertationauc.Auction.repositories.BidderRepo;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,11 @@ import java.util.Map;
 @Component
 public class JWT {
     public static final String secretKey = "jwtoken";
+    private final BidderRepo bidderRepo;
+
+    public JWT(BidderRepo bidderRepo) {
+        this.bidderRepo = bidderRepo;
+    }
 
     public String generateToken(String userName, boolean logout){
         Map<String, Object> claims = new HashMap<>();
@@ -45,9 +51,13 @@ public class JWT {
 
 
 
-    public boolean validateToken(String token, String userName) {
+    public boolean validateToken(String token) {
         String tokenUsername = extractUsername(token);
-        return tokenUsername.equals(userName) && !isTokenExpired(token);
+        Bidder bidder = bidderRepo.findByUserName(tokenUsername);
+        if(bidder==null && isTokenExpired(token)){
+            return false;
+        }
+        return true;
     }
 
 

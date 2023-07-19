@@ -48,4 +48,19 @@ public class GlobalExceptionHandler {
         return new GlobalErrorResponse("Email was not entered.", e.getLocalizedMessage());
     }
 
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InsufficentFundsExcepion.class)
+    public GlobalErrorResponse handleInsufficientFundsException(InsufficentFundsExcepion e){
+        return new GlobalErrorResponse("Insufficient funds.", e.getLocalizedMessage());
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidBidderException.class)
+    public GlobalErrorResponse handleInvalidBidderException(InvalidBidderException e){
+        return new GlobalErrorResponse("Owner of an item cannot set a bid on their own item.", e.getLocalizedMessage());
+    }
+
+
 }

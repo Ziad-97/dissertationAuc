@@ -1,5 +1,9 @@
 package com.dissertationauc.dissertationauc.Auction.services;
 
+import com.dissertationauc.dissertationauc.Auction.data.AuctionData;
+import com.dissertationauc.dissertationauc.Auction.data.AuctionResponse;
+import com.dissertationauc.dissertationauc.Auction.exception.InsufficentFundsExcepion;
+import com.dissertationauc.dissertationauc.Auction.exception.InvalidBidderException;
 import com.dissertationauc.dissertationauc.Auction.model.Auction;
 import com.dissertationauc.dissertationauc.Auction.model.Bidder;
 import com.dissertationauc.dissertationauc.Auction.repositories.AuctionRepo;
@@ -10,20 +14,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class AuctionServiceImpl implements AuctionService {
 
     private final AuctionRepo auctionRepo;
+
+    private final BidderRepo bidderRepo;
     @Autowired
-    public AuctionServiceImpl( AuctionRepo auctionRepo){
+    public AuctionServiceImpl(AuctionRepo auctionRepo, BidderRepo bidderRepo){
         this.auctionRepo = auctionRepo;
+        this.bidderRepo = bidderRepo;
     }
 
 
@@ -65,7 +71,14 @@ public class AuctionServiceImpl implements AuctionService {
         Auction auction = getAuctionbyId(id); // Got the id r
 
         if (auction != null) {
+            Bidder bidder =bidderRepo.findByUserName(userName);
+            if(bidder == auction.getAuctionItem().getUser()){
+                throw new InvalidBidderException("Owner cannot set a bid on an item that they own.");
+            }
+            if(bidder.getFunds() <= amount) {
 
+                throw new InsufficentFundsExcepion("You currently don't have enough funds. ");
+            }
 
             if (auction.getOpen()) {
 
@@ -87,12 +100,12 @@ public class AuctionServiceImpl implements AuctionService {
                     log.info("Your bid has been accepted");
                     auction.setBidderName(userName);
                     auction.setBidPrice(amount);
-                    LocalDateTime close = auction.getClosingTime() == null ? LocalDateTime.now().plusMinutes(15) : auction.getClosingTime();
+                    LocalDateTime close = auction.getClosingTime() == null ? LocalDateTime.now().plusMinutes(10) : auction.getClosingTime();
                     auction.setClosingTime(close.plusMinutes(5));
                 }
                 if (bidPrice == null) {
                     auction.setOpeningTime(LocalDateTime.now());
-                    auction.setClosingTime(LocalDateTime.now().plusMinutes(20));
+                    auction.setClosingTime(LocalDateTime.now().plusMinutes(10));
                     auction.setBidderName(userName);
                     auction.setBidPrice(amount);
                 }
@@ -120,15 +133,6 @@ public class AuctionServiceImpl implements AuctionService {
 
 
 
-    /*
-    Add selling functionality inside this class or the user service class(still unsure.))
-     */
-
-
-
-
-
-
     private Auction getAuctionbyId(Long id){
         Optional<Auction> optionalAuction= auctionRepo.findById(id);
         return optionalAuction.orElse(null);
@@ -142,10 +146,10 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public ResponseEntity<List<Auction>> getAuctions() {
+    public ResponseEntity<List<AuctionResponse>> getAuctions() {
         List<Auction> auctions = auctionRepo.findAllByOpen(true);
-
-        return ResponseEntity.ok().body(auctions);
+        List<AuctionResponse> auctionDataList = auctions.stream().map(ObjectDataMapper :: auctionDataMapper).collect(Collectors.toList());
+        return ResponseEntity.ok().body(auctionDataList);
     }
 
 }

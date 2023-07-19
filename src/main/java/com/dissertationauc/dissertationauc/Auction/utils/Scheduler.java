@@ -86,6 +86,7 @@ public class Scheduler {
 
         Item item = auction.getAuctionItem();
         item.setUser(bidder);
+        item.setPrice(auction.getBidPrice());
         itemRepo.save(item);
 
 

@@ -7,8 +7,10 @@ import com.dissertationauc.dissertationauc.Auction.exception.UserAlreadyExistsEx
 import com.dissertationauc.dissertationauc.Auction.exception.UserNotFoundException;
 import com.dissertationauc.dissertationauc.Auction.model.Bidder;
 import com.dissertationauc.dissertationauc.Auction.model.Item;
+import com.dissertationauc.dissertationauc.Auction.repositories.AuctionRepo;
 import com.dissertationauc.dissertationauc.Auction.repositories.ItemRepo;
 import com.dissertationauc.dissertationauc.Auction.repositories.BidderRepo;
+import com.dissertationauc.dissertationauc.Auction.utils.ThreadContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.dissertationauc.dissertationauc.Auction.utils.ObjectDataMapper.bidderDataMapper;
 
@@ -29,6 +32,8 @@ public class UserServiceImpl implements UserService{
     BidderRepo bidderRepo;
     @Autowired
     ItemRepo itemRepo;
+    @Autowired
+    AuctionRepo auctionRepo;
 
     @Override
     public ResponseEntity loginService(String userName, String password) {
@@ -98,9 +103,11 @@ public class UserServiceImpl implements UserService{
     @Override
     public ResponseEntity addFunds(AddFundsData data) {
 
-        Bidder bidder =bidderRepo.findByUserName(data.getUserName());
+        String userName = ThreadContext.getThreadContextData().getUserName();
+        Bidder bidder = bidderRepo.findByUserName(userName);
+        Integer funds = bidder.getFunds() == null ? 0: bidder.getFunds();
+        bidder.setFunds(funds+data.getFunds());
 
-        bidder.setFunds(data.getFunds()+data.getFunds());
 
         bidderRepo.save(bidder);
 
@@ -108,9 +115,22 @@ public class UserServiceImpl implements UserService{
 
     }
 
+    @Override
+    public ResponseEntity getAccountDetails() {
+        String userName = ThreadContext.getThreadContextData().getUserName();
+
+        Bidder bidder = bidderRepo.findByUserName(userName);
+
+        Integer funds = bidder.getFunds();
+
+        Integer items = bidder.getItems().size();
+
+        Integer activeAuctions = auctionRepo.findAllByBidderName(userName).size();
+
+        return ResponseEntity.ok().body(Map.of("funds", funds,"items", items,"activeAuctions", activeAuctions));
 
 
-
+    }
 
 
     @Override
@@ -139,6 +159,9 @@ public class UserServiceImpl implements UserService{
            throw new UserNotFoundException("Email not found");   //Not found in the current build
         }
     }
+
+
+
 
 
 

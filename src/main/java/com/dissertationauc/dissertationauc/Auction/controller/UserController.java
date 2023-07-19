@@ -51,7 +51,7 @@ public class UserController {
 
             if(response.getStatusCode().is2xxSuccessful()) {
                 String token = jwt.generateToken(usr.getUserName(), false);
-                return ResponseEntity.ok().body(token);
+                return ResponseEntity.ok().body(Map.of("access_token",token));
             }
 
             else {
@@ -87,24 +87,38 @@ public class UserController {
                 return registerResponse;
             }
 
-    @PostMapping("/{userId}/addItem")
-    public ResponseEntity addItemController(@RequestBody ItemData data, @PathVariable Long userId) {
+    @PostMapping("/addItem")
+    public ResponseEntity addItemController(@RequestBody ItemData data) {
 
-        ResponseEntity addingItemResponse = itemService.addItems(data,userId);
+        ResponseEntity addingItemResponse = itemService.addItems(data);
 
         return addingItemResponse;
 
     }
 
 
-    @PostMapping("/{userId}/sellItem")
-    public ResponseEntity sellItemController(@RequestBody ItemData data,  @PathVariable Long userId) {
+    @PostMapping("/sellItem")
+    public ResponseEntity sellItemController(@RequestBody ItemData data) {
 
-        ResponseEntity sellingItemResponse = itemService.sellItems(data, userId);
+        ResponseEntity sellingItemResponse = itemService.sellItems(data);
 
 
         return sellingItemResponse;
 
+    }
+
+    @GetMapping("getItems")
+    public ResponseEntity getItemController(){
+        ResponseEntity getItemResponse = itemService.getItems();
+        return getItemResponse;
+    }
+
+    @GetMapping("getAcountDetails")
+    public ResponseEntity getAccountController(){
+        ResponseEntity getAccountResponse = userService.getAccountDetails();
+
+
+        return getAccountResponse;
     }
 
 

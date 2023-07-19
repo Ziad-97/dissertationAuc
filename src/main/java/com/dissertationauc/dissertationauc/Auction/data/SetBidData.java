@@ -3,15 +3,11 @@ package com.dissertationauc.dissertationauc.Auction.data;
 import lombok.Data;
 
 @Data
+public class SetBidData {
 
-public class AddFundsData {
+    private Long id;
 
-
-
-    private int funds;
-
-
-
+    private Double amount;
 
 
 }

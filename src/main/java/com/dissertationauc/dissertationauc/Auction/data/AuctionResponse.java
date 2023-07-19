@@ -14,6 +14,9 @@ public class AuctionResponse {
 
     private ItemData auctionItem;
     private String auctionName;
-    private Integer bidPrice;
+    private Double bidPrice;
     private String bidderName;
+    private Long id;
+    private Long bid;
+
 }

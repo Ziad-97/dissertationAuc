@@ -20,6 +20,7 @@ public interface UserService  {
 
     ResponseEntity addFunds(AddFundsData data);
 
+    ResponseEntity getAccountDetails();
 
 
 

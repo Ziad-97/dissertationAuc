@@ -3,13 +3,10 @@ package com.dissertationauc.dissertationauc.Auction.data;
 import lombok.Data;
 
 @Data
-
-public class AddFundsData {
-
+public class UserLifeCycleData {
 
 
-    private int funds;
-
+    private String userName;
 
 
 

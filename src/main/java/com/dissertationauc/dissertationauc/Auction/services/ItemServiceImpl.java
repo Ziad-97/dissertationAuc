@@ -14,6 +14,8 @@ import com.dissertationauc.dissertationauc.Auction.model.Item;
 import com.dissertationauc.dissertationauc.Auction.repositories.AuctionRepo;
 import com.dissertationauc.dissertationauc.Auction.repositories.ItemRepo;
 import com.dissertationauc.dissertationauc.Auction.repositories.BidderRepo;
+import com.dissertationauc.dissertationauc.Auction.utils.ObjectDataMapper;
+import com.dissertationauc.dissertationauc.Auction.utils.ThreadContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.dissertationauc.dissertationauc.Auction.utils.ObjectDataMapper.*;
 
@@ -40,11 +43,13 @@ public class ItemServiceImpl implements ItemService {
     BidderRepo bidderRepo;
 
     @Override
-    public ResponseEntity sellItems(ItemData data, Long userId) {
+    public ResponseEntity sellItems(ItemData data) {
         Item item = itemRepo.findByName(data.getName());
+        String userName = ThreadContext.getThreadContextData().getUserName();
 
+        Bidder bidder = bidderRepo.findByUserName(userName);
 
-        if(item!= null) {
+        if(item!= null && item.getUser()==bidder) {
 
             Auction auction = new Auction();
             auction.setAuctionItem(item);
@@ -65,22 +70,45 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public ResponseEntity addItems(ItemData data, Long userId) {
+    public ResponseEntity addItems(ItemData data) {
         Item item = new Item();
-        Optional<Bidder> bidder = bidderRepo.findById(userId);
+        String userName = ThreadContext.getThreadContextData().getUserName();
 
-        if(bidder.isPresent()) {
+      Bidder bidder = bidderRepo.findByUserName(userName);
+
+        if(bidder!=null) {
 
 
             item.setPrice(data.getPrice());
             item.setName(data.getName());
+            item.setId(data.getId());
 
-            item.setUser(bidder.get());
+            item.setUser(bidder);
             item = itemRepo.save(item);
 
         }
 
         return ResponseEntity.ok().body(itemResponseDataMapper(item));
+
+    }
+
+    @Override
+    public ResponseEntity getItems(){
+        String userName = ThreadContext.getThreadContextData().getUserName();
+
+        Bidder bidder = bidderRepo.findByUserName(userName);
+
+        if(bidder== null){
+        throw new UserNotFoundException("User not Found");
+
+        }
+        List<Item> items = itemRepo.findAllByUser(bidder);
+        List<ItemResponse> itemResponses = items.stream()
+                .map(ObjectDataMapper::itemResponseDataMapper)
+                .toList();
+
+        return ResponseEntity.ok().body(itemResponses);
+
 
     }
 

@@ -1,7 +1,9 @@
 package com.dissertationauc.dissertationauc.Auction.controller;
 
+import com.dissertationauc.dissertationauc.Auction.data.SetBidData;
 import com.dissertationauc.dissertationauc.Auction.services.AuctionService;
 import com.dissertationauc.dissertationauc.Auction.utils.JWT;
+import com.dissertationauc.dissertationauc.Auction.utils.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +36,13 @@ public class AuctionController {
 
     }
 
-    @PostMapping("setbid/{id}")
-    public ResponseEntity setBid(@PathVariable Long id, @RequestParam Double amount, @RequestHeader("Authorization") String token) {
-        String username = extractUsernameFromToken(token);
+    @PostMapping("setbid")
+    public ResponseEntity setBid(@RequestBody SetBidData data) {
+        String username = ThreadContext.getThreadContextData().getUserName();
 
         if (username != null) {
 
-             ResponseEntity response = auctionService.setBid(id, username, amount);
+             ResponseEntity response = auctionService.setBid(data.getId(), username, data.getAmount());
 
              return response;
         } else {
@@ -48,6 +50,10 @@ public class AuctionController {
         }
     }
 
+    @GetMapping("showauctions")
+    public ResponseEntity getAuctions(){
+        return auctionService.getAuctions();
+    }
 
 
 

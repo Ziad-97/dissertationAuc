@@ -17,6 +17,7 @@ public class AuctionData {
 
 
 
+
     /*
     * The items that are set from the auction are generated from user now, rather than
     *

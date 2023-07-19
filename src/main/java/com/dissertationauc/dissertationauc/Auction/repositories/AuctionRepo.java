@@ -11,6 +11,9 @@ public interface AuctionRepo extends JpaRepository<Auction, Long> {
     List<Auction> findAllByOpen(Boolean isOpen);
 
 
+    List<Auction> findAllByBidderName(String bidderName);
+
+
     /*
     *
     * change something in the JPA respoitory, to suit the auction based of the user.*/

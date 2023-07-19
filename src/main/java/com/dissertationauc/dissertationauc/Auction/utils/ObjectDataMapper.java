@@ -42,6 +42,12 @@ public class ObjectDataMapper {
 
         auctionData.setAuctionItem(itemDataMapper(auction.getAuctionItem()));
         auctionData.setAuctionName(auction.getAuctionName());
+        auctionData.setBidPrice(auction.getBidPrice());
+        auctionData.setBidderName(auction.getBidderName());
+        auctionData.setId(auction.getId());
+        auctionData.setBid(0L);
+
+
 
         return auctionData;
 
