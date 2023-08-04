@@ -47,6 +47,7 @@ public class Scheduler {
         log.info("Scheduler is running");
         List<Auction> auctions = auctionRepo.findAll();
 
+
         for (Auction auction : auctions) {
             if (auction.getOpen()) {
                 if (auction.getClosingTime() != null) {

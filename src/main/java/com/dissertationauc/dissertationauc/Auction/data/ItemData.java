@@ -13,6 +13,7 @@ public class ItemData {
     private String name;
     private Long id;
     private Double price;
+    private String imgLink;
 
 
 

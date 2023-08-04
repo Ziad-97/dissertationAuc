@@ -1,6 +1,8 @@
 package com.dissertationauc.dissertationauc.Auction.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -8,6 +10,8 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "item")
 public class Item {
     @Id
@@ -17,6 +21,8 @@ public class Item {
     private String name;
 
     private Double price;
+
+    private String imgLink;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

@@ -8,6 +8,9 @@ import com.dissertationauc.dissertationauc.Auction.model.Auction;
 import com.dissertationauc.dissertationauc.Auction.model.Bidder;
 import com.dissertationauc.dissertationauc.Auction.model.Item;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class ObjectDataMapper {
 
     public static BidderResponse bidderDataMapper(Bidder user) {
@@ -38,14 +41,19 @@ public class ObjectDataMapper {
     public static AuctionResponse auctionDataMapper(Auction auction){
 
         AuctionResponse  auctionData = new AuctionResponse();
-
-
+        auctionData.setImgLink(auction.getImgLink());
+        auctionData.setOwner(auction.getOwner());
         auctionData.setAuctionItem(itemDataMapper(auction.getAuctionItem()));
         auctionData.setAuctionName(auction.getAuctionName());
         auctionData.setBidPrice(auction.getBidPrice());
         auctionData.setBidderName(auction.getBidderName());
         auctionData.setId(auction.getId());
         auctionData.setBid(0L);
+
+        if(auction.getClosingTime()!=null) {
+            auctionData.setTimeLeft(Duration.between(LocalDateTime.now(), auction.getClosingTime()).toMinutes());
+        }
+
 
 
 

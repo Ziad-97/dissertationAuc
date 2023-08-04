@@ -62,5 +62,42 @@ public class GlobalExceptionHandler {
         return new GlobalErrorResponse("Owner of an item cannot set a bid on their own item.", e.getLocalizedMessage());
     }
 
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(AuctionAlreadyExistsException.class)
+    public GlobalErrorResponse handleAuctionAlreadyExistsException(AuctionAlreadyExistsException e){
+        return new GlobalErrorResponse("Auction Already Exists.", e.getLocalizedMessage());
+    }
+
+
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ItemAlreadyExistsException.class)
+    public GlobalErrorResponse handleItemAlreadyExistsException(ItemAlreadyExistsException e){
+        return new GlobalErrorResponse("Item Already Exists.", e.getLocalizedMessage());
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidUserNameAndPasswordException.class)
+    public GlobalErrorResponse handleInvalidUserNameAndPasswordException(InvalidUserNameAndPasswordException e){
+        return new GlobalErrorResponse("Invalid Username or Password", e.getLocalizedMessage());
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AuctionClosedException.class)
+    public GlobalErrorResponse handleAuctionClosedException(AuctionClosedException e){
+        return new GlobalErrorResponse("The Auction is already closed.", e.getLocalizedMessage());
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(InvalidItemException.class)
+    public GlobalErrorResponse handleInvalidItemException(InvalidItemException e){
+        return new GlobalErrorResponse("ITEM.INVALID", e.getLocalizedMessage());
+    }
+
 
 }

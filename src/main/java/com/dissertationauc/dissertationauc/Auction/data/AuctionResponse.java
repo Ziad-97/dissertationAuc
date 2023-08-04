@@ -18,5 +18,9 @@ public class AuctionResponse {
     private String bidderName;
     private Long id;
     private Long bid;
+    private Long timeLeft;
+    private String owner;
+    private String imgLink;
+
 
 }

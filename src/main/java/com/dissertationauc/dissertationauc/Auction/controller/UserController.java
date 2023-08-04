@@ -10,6 +10,7 @@ import com.dissertationauc.dissertationauc.Auction.services.EmailService;
 import com.dissertationauc.dissertationauc.Auction.services.ItemService;
 import com.dissertationauc.dissertationauc.Auction.services.UserService;
 import com.dissertationauc.dissertationauc.Auction.utils.JWT;
+import com.dissertationauc.dissertationauc.Auction.utils.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
@@ -51,7 +52,7 @@ public class UserController {
 
             if(response.getStatusCode().is2xxSuccessful()) {
                 String token = jwt.generateToken(usr.getUserName(), false);
-                return ResponseEntity.ok().body(Map.of("access_token",token));
+                return ResponseEntity.ok().body(Map.of("access_token",token, "userName", usr.getUserName()));
             }
 
             else {
@@ -62,12 +63,12 @@ public class UserController {
         }
 
         @PostMapping("/logout")
-        public ResponseEntity logoutController(@RequestBody BidderData usr) {
-
-            ResponseEntity response = userService.logoutService(usr.getUserName());
+        public ResponseEntity logoutController() {
+                String userName = ThreadContext.getThreadContextData().getUserName();
+            ResponseEntity response = userService.logoutService(userName);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                String token = jwt.generateToken(usr.getUserName(), true);
+                String token = jwt.generateToken(userName, true);
                 return ResponseEntity.ok().body(token + "Logout successful");
             }
 
@@ -113,7 +114,7 @@ public class UserController {
         return getItemResponse;
     }
 
-    @GetMapping("getAcountDetails")
+    @GetMapping("getAccountDetails")
     public ResponseEntity getAccountController(){
         ResponseEntity getAccountResponse = userService.getAccountDetails();
 

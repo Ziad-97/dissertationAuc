@@ -1,13 +1,7 @@
 package com.dissertationauc.dissertationauc.Auction.services;
 
-import com.dissertationauc.dissertationauc.Auction.data.BidderData;
-import com.dissertationauc.dissertationauc.Auction.data.BidderResponse;
-import com.dissertationauc.dissertationauc.Auction.data.ItemData;
-import com.dissertationauc.dissertationauc.Auction.data.ItemResponse;
-import com.dissertationauc.dissertationauc.Auction.exception.InvalidEmailException;
-import com.dissertationauc.dissertationauc.Auction.exception.InvalidUserNameException;
-import com.dissertationauc.dissertationauc.Auction.exception.UserAlreadyExistsException;
-import com.dissertationauc.dissertationauc.Auction.exception.UserNotFoundException;
+import com.dissertationauc.dissertationauc.Auction.data.*;
+import com.dissertationauc.dissertationauc.Auction.exception.*;
 import com.dissertationauc.dissertationauc.Auction.model.Auction;
 import com.dissertationauc.dissertationauc.Auction.model.Bidder;
 import com.dissertationauc.dissertationauc.Auction.model.Item;
@@ -43,34 +37,50 @@ public class ItemServiceImpl implements ItemService {
     BidderRepo bidderRepo;
 
     @Override
-    public ResponseEntity sellItems(ItemData data) {
-        Item item = itemRepo.findByName(data.getName());
+    public ResponseEntity<AuctionResponse> sellItems(ItemData data) {
+
         String userName = ThreadContext.getThreadContextData().getUserName();
 
         Bidder bidder = bidderRepo.findByUserName(userName);
-
+        Item item = itemRepo.findByNameAndUserAndId(data.getName(), bidder, data.getId()).orElse(null);
         if(item!= null && item.getUser()==bidder) {
 
-            Auction auction = new Auction();
-            auction.setAuctionItem(item);
-            auction.setAuctionName(item.getName());
-            auction.setOpen(true);
-            auction.setOpeningTime(LocalDateTime.now());
-
-            auction= auctionRepo.save(auction);
+            Optional<Auction> optionalAuction = auctionRepo.findByAuctionNameAndOpenAndAuctionItem(item.getName(), true, item);
 
 
-            return ResponseEntity.ok().body(auctionDataMapper(auction));
-        }
+            if(!optionalAuction.isPresent()) {
+
+
+                Auction auction = new Auction();
+                auction.setImgLink(data.getImgLink());
+                auction.setOwner(bidder.getUserName());
+                auction.setAuctionItem(item);
+                auction.setAuctionName(item.getName());
+                auction.setOpen(true);
+                auction.setOpeningTime(LocalDateTime.now());
+
+                auction = auctionRepo.save(auction);
+
+
+                return ResponseEntity.ok().body(auctionDataMapper(auction));
+            }
+            else{
+                throw new AuctionAlreadyExistsException("Auction cannot be created as it already exists.");
+            }
+
+            }
         else {
+
+        }
             return ResponseEntity.notFound().build();
         }
-    }
+
+
 
 
 
     @Override
-    public ResponseEntity addItems(ItemData data) {
+    public ResponseEntity<ItemResponse> addItems(ItemData data) {
         Item item = new Item();
         String userName = ThreadContext.getThreadContextData().getUserName();
 
@@ -78,14 +88,21 @@ public class ItemServiceImpl implements ItemService {
 
         if(bidder!=null) {
 
+            Optional<Item> optionalItem = itemRepo.findByNameAndUserAndId(data.getName(), bidder, data.getId());
+            if(optionalItem.isEmpty()) {
 
-            item.setPrice(data.getPrice());
-            item.setName(data.getName());
-            item.setId(data.getId());
 
-            item.setUser(bidder);
-            item = itemRepo.save(item);
+                item.setPrice(data.getPrice());
+                item.setName(data.getName());
+                item.setId(data.getId());
 
+                item.setUser(bidder);
+                item = itemRepo.save(item);
+            }
+
+            else {
+                throw new ItemAlreadyExistsException("This item already exists in the inventory.");
+            }
         }
 
         return ResponseEntity.ok().body(itemResponseDataMapper(item));
@@ -93,21 +110,37 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ResponseEntity getItems(){
+    public ResponseEntity <List<ItemResponse>> getItems(){
         String userName = ThreadContext.getThreadContextData().getUserName();
 
         Bidder bidder = bidderRepo.findByUserName(userName);
+
 
         if(bidder== null){
         throw new UserNotFoundException("User not Found");
 
         }
         List<Item> items = itemRepo.findAllByUser(bidder);
+
         List<ItemResponse> itemResponses = items.stream()
+                .filter(this::hasAuction)
                 .map(ObjectDataMapper::itemResponseDataMapper)
                 .toList();
 
         return ResponseEntity.ok().body(itemResponses);
+
+
+    }
+
+
+
+    private boolean hasAuction(Item item){
+
+        Optional<Auction> optionalAuction = auctionRepo.findByAuctionItemAndOpen(item, true);
+
+
+
+        return optionalAuction.isEmpty();
 
 
     }

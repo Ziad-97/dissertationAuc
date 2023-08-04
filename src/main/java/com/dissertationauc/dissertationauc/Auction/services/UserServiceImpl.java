@@ -1,10 +1,7 @@
 package com.dissertationauc.dissertationauc.Auction.services;
 
 import com.dissertationauc.dissertationauc.Auction.data.*;
-import com.dissertationauc.dissertationauc.Auction.exception.InvalidEmailException;
-import com.dissertationauc.dissertationauc.Auction.exception.InvalidUserNameException;
-import com.dissertationauc.dissertationauc.Auction.exception.UserAlreadyExistsException;
-import com.dissertationauc.dissertationauc.Auction.exception.UserNotFoundException;
+import com.dissertationauc.dissertationauc.Auction.exception.*;
 import com.dissertationauc.dissertationauc.Auction.model.Bidder;
 import com.dissertationauc.dissertationauc.Auction.model.Item;
 import com.dissertationauc.dissertationauc.Auction.repositories.AuctionRepo;
@@ -30,13 +27,12 @@ public class UserServiceImpl implements UserService{
     private  BCryptPasswordEncoder passwordEncoder;
     @Autowired
     BidderRepo bidderRepo;
-    @Autowired
-    ItemRepo itemRepo;
+
     @Autowired
     AuctionRepo auctionRepo;
 
     @Override
-    public ResponseEntity loginService(String userName, String password) {
+    public ResponseEntity<BidderResponse> loginService(String userName, String password) {
 
         Bidder bid1 = bidderRepo.findByUserName(userName);
 
@@ -45,8 +41,7 @@ public class UserServiceImpl implements UserService{
 
             return ResponseEntity.ok().body(bidderDataMapper(bid1));
         } else {
-            log.info("USER NOT FOUND");
-            return ResponseEntity.notFound().build();
+           throw new InvalidUserNameAndPasswordException("Wrong Username and Password, please try again");
         }
     }
 
@@ -69,7 +64,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public ResponseEntity registerService(BidderData user) {
-
+        validateForCreate(user);
        List<Bidder> bid1 = bidderRepo.findByUserNameOrEmail(user.getUserName(), user.getEmail());
 
 
@@ -125,9 +120,10 @@ public class UserServiceImpl implements UserService{
 
         Integer items = bidder.getItems().size();
 
-        Integer activeAuctions = auctionRepo.findAllByBidderName(userName).size();
+        Integer activeAuctions = auctionRepo.findAllByBidderNameAndOpen(userName, true).size();
 
-        return ResponseEntity.ok().body(Map.of("funds", funds,"items", items,"activeAuctions", activeAuctions));
+        return ResponseEntity.ok().body
+                (Map.of("funds", funds,"items", items,"activeAuction", activeAuctions));
 
 
     }
@@ -168,7 +164,7 @@ public class UserServiceImpl implements UserService{
 
 
 
-    private void ValidateForCreate(BidderData usr){
+    private void validateForCreate(BidderData usr){
         if(usr.getUserName()== null || usr.getUserName().equals("")){
             throw new InvalidUserNameException("Username was not entered");
         }
